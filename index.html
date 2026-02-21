@@ -24,6 +24,8 @@ body { background-color: var(--bg); color: var(--dark); }
 
 nav { background: linear-gradient(90deg, #4f46e5, #9333ea); padding:1rem 5%; display:flex; justify-content:space-between; align-items:center; color:white; position:sticky; top:0; z-index:100; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
 .logo { font-size:1.8rem; font-weight:800; }
+.nav-right { display: flex; gap: 15px; align-items: center; }
+
 .cart-trigger { background: rgba(255,255,255,0.2); padding:8px 15px; border-radius:50px; cursor:pointer; transition:0.3s; }
 
 .container { max-width:1200px; margin:40px auto; display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:30px; padding:0 20px; }
@@ -45,7 +47,6 @@ nav { background: linear-gradient(90deg, #4f46e5, #9333ea); padding:1rem 5%; dis
 .auth-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; color: white; transition: 0.2s; }
 .signup-trigger { background: var(--primary); }
 .login-trigger { background: var(--dark); }
-.auth-btn:hover { opacity: 0.9; }
 </style>
 </head>
 <body>
@@ -54,8 +55,11 @@ nav { background: linear-gradient(90deg, #4f46e5, #9333ea); padding:1rem 5%; dis
 
 <nav>
   <div class="logo">NEON<span>STORE</span></div>
-  <div class="cart-trigger" onclick="toggleCart()">
-    🛒 <span id="count">0 Items</span>
+  <div class="nav-right">
+    <button class="auth-btn signup-trigger" onclick="toggleCart()" style="background:white; color:var(--primary); width:auto; padding:8px 15px;">Sign Up</button>
+    <div class="cart-trigger" onclick="toggleCart()">
+      🛒 <span id="count">0 Items</span>
+    </div>
   </div>
 </nav>
 
@@ -70,8 +74,8 @@ nav { background: linear-gradient(90deg, #4f46e5, #9333ea); padding:1rem 5%; dis
   <div id="cart-list" style="flex-grow:1; overflow-y: auto;"></div>
 
   <div class="auth-box">
-    <h4>Member Access</h4>
-    <input type="email" id="email-field" class="auth-input" placeholder="Email address...">
+    <h4>Account Access</h4>
+    <input type="email" id="email-field" class="auth-input" placeholder="Enter email...">
     <div class="auth-btn-group">
       <button class="auth-btn signup-trigger" onclick="handleAuth('sign_up')">Sign Up</button>
       <button class="auth-btn login-trigger" onclick="handleAuth('login')">Login</button>
@@ -80,7 +84,7 @@ nav { background: linear-gradient(90deg, #4f46e5, #9333ea); padding:1rem 5%; dis
 
   <div style="border-top:1px solid #eee; padding-top:20px; margin-top: 20px;">
     <h3>Total: <span id="total-price">$0.00</span></h3>
-    <button class="add-btn checkout" id="checkout-btn" style="background: var(--secondary); margin-top:15px;">Checkout</button>
+    <button class="add-btn checkout" id="checkout-btn" style="background: var(--dark); margin-top:15px;">Checkout</button>
   </div>
 </div>
 
@@ -89,7 +93,9 @@ const products = [
   { id:1, name:"Neon Headphones", price:199, img:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500" },
   { id:2, name:"Minimalist Watch", price:250, img:"https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500" },
   { id:3, name:"Pro Smart Camera", price:450, img:"https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500" },
-  { id:4, name:"Vapor Sneakers", price:120, img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500" }
+  { id:4, name:"Vapor Sneakers", price:120, img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500" },
+  { id:5, name:"Gaming Laptop", price:1299, img:"https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500" },
+  { id:6, name:"Smart Speaker", price:89, img:"https://images.unsplash.com/photo-1589003077984-894e133dabab?w=500" }
 ];
 
 let cart = [];
@@ -110,8 +116,7 @@ function addToCart(id) {
   cart.push(item);
   updateUI();
 
-  // Track Add to Cart
-  if (typeof gtag === 'function') {
+  if (typeof gtag === "function") {
     gtag('event', 'add_to_cart', {
       currency: 'USD',
       value: item.price,
@@ -138,27 +143,22 @@ function updateUI() {
 
 function toggleCart() { document.getElementById('sidebar').classList.toggle('active'); }
 
-// Handle Sign Up and Login Tracking
 function handleAuth(eventType) {
   const emailInput = document.getElementById('email-field').value;
   if(!emailInput) { alert("Please enter an email"); return; }
 
-  // Send event to GA4 via gtag (for hardcoded fallback)
-  if (typeof gtag === 'function') {
-    gtag('event', eventType, {
-      'method': 'email'
-    });
+  if (typeof gtag === "function") {
+    gtag('event', eventType, { 'method': 'email' });
   }
 
-  alert(eventType.replace('_', ' ') + " successful!");
+  alert(eventType.replace('_', ' ') + " tracking triggered!");
   document.getElementById('email-field').value = "";
 }
 
 renderProducts();
 
-// Track Checkout clicks
 document.getElementById('checkout-btn').addEventListener('click', function(){
-  if (typeof gtag === 'function') {
+  if (typeof gtag === "function") {
     gtag('event', 'begin_checkout', {
       currency: 'USD',
       value: cart.reduce((sum,item)=>sum+item.price,0),
